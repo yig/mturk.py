@@ -1,0 +1,38 @@
+A convenient command-line tool for using Amazon Mechanical Turk.
+Relies on boto: https://github.com/boto/boto
+
+Author: Yotam Gingold <yotam@yotamgingold.com>
+
+Any copyright is dedicated to the Public Domain.
+http://creativecommons.org/publicdomain/zero/1.0/
+
+
+$ ./mturk.py 
+Usage: ./mturk.py [really] submit path/to/job.json
+Usage: ./mturk.py [really] info HITId
+Usage: ./mturk.py [really] retrieve HITId
+Usage: ./mturk.py [really] approve AssignmentId [feedback]
+Usage: ./mturk.py [really] reject AssignmentId [feedback]
+Usage: ./mturk.py [really] bonus WorkerId AssignmentId dollars feedback
+Usage: ./mturk.py [really] expire HITId
+Usage: ./mturk.py [really] remove HITId
+Example: ./mturk.py submit debug.json
+Example "debug.json":
+{
+    "create_hit_kwargs": {
+        "title": "Nothing",
+        "description": "Testing parameters in and out of sandbox.",
+        "keywords": [ "debug, debugging" ],
+        
+        "frame_height": 900,
+        
+        "amount": 0.0,
+        "max_assignments": 1,
+        
+        "duration": 360,
+        "lifetime": 604800,
+        "approval_delay": 0
+        },
+    "URLs": [ "http://techhouse.org/~yotam/mturk/request.php" ]
+}
+Note: Commands run in the sandbox unless "really" is present.
