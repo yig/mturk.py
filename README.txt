@@ -33,6 +33,6 @@ Example "debug.json":
         "lifetime": 604800,
         "approval_delay": 0
         },
-    "URLs": [ "http://techhouse.org/~yotam/mturk/request.php" ]
+    "URLs": [ "http://example.com/page.html" ]
 }
 Note: Commands run in the sandbox unless "really" is present.
