@@ -14,6 +14,7 @@ Usage: ./mturk.py [really] retrieve HITId
 Usage: ./mturk.py [really] approve AssignmentId [feedback]
 Usage: ./mturk.py [really] reject AssignmentId [feedback]
 Usage: ./mturk.py [really] bonus WorkerId AssignmentId dollars feedback
+Usage: ./mturk.py [really] extend HITId number-of-additional-assignments
 Usage: ./mturk.py [really] expire HITId
 Usage: ./mturk.py [really] remove HITId
 Example: ./mturk.py submit debug.json

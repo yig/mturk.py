@@ -433,6 +433,7 @@ def main():
         print >> sys.stderr, 'Usage:', sys.argv[0], '[really] approve AssignmentId [feedback]'
         print >> sys.stderr, 'Usage:', sys.argv[0], '[really] reject AssignmentId [feedback]'
         print >> sys.stderr, 'Usage:', sys.argv[0], '[really] bonus WorkerId AssignmentId dollars feedback'
+        print >> sys.stderr, 'Usage:', sys.argv[0], '[really] extend HITId number-of-additional-assignments'
         print >> sys.stderr, 'Usage:', sys.argv[0], '[really] expire HITId'
         print >> sys.stderr, 'Usage:', sys.argv[0], '[really] remove HITId'
         ## TODO:
@@ -499,7 +500,8 @@ def main():
         
         HITId = argv[0]
         
-        mturk.expire_hit( HITId )
+        response = mturk.expire_hit( HITId )
+        print response.status
     
     def remove( argv ):
         if len( argv ) != 1: usage()
@@ -515,7 +517,8 @@ def main():
         
         feedback = None if len( argv ) == 0 else argv[0]
         
-        mturk.approve_assignment( AssignmentId, feedback = feedback )
+        response = mturk.approve_assignment( AssignmentId, feedback = feedback )
+        print response.status
     
     def reject( argv ):
         if len( argv ) not in (1,2): usage()
@@ -524,7 +527,22 @@ def main():
         
         feedback = None if len( argv ) == 0 else argv[0]
         
-        mturk.reject_assignment( AssignmentId, feedback = feedback )
+        response = mturk.reject_assignment( AssignmentId, feedback = feedback )
+        print response.status
+    
+    def extend( argv ):
+        if len( argv ) != 2: usage()
+        
+        HITId, number_of_additional_assignments = argv
+        
+        try:
+            number_of_additional_assignments = int( number_of_additional_assignments )
+        except ValueError: usage()
+        if number_of_additional_assignments < 0: usage()
+        
+        print '[extend_hit( %s, %d additional assignments )]' % ( HITId, number_of_additional_assignments )
+        response = mturk.extend_hit( HITId, assignments_increment = number_of_additional_assignments )
+        print response.status
     
     def bonus( argv ):
         if len( argv ) != 4: usage()
@@ -537,7 +555,8 @@ def main():
         
         price = boto.mturk.price.Price( amount = dollars, currency_code = 'USD' )
         
-        mturk.grant_bonus( WorkerId, AssignmentId, price, reason = feedback )
+        response = mturk.grant_bonus( WorkerId, AssignmentId, price, reason = feedback )
+        print response.status
     
     def debug( argv ):
         print 'sandbox:', sandbox
@@ -555,7 +574,7 @@ def main():
     
     if len( argv ) == 0: usage()
     
-    commands = [ submit, info, retrieve, approve, reject, bonus, expire, remove, debug ]
+    commands = [ submit, info, retrieve, approve, reject, bonus, extend, expire, remove, debug ]
     name2func = dict([ ( f.__name__, f ) for f in commands ])
     
     try:
