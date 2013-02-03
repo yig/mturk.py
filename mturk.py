@@ -9,10 +9,6 @@ http://creativecommons.org/publicdomain/zero/1.0/
 
 import boto.mturk.connection, boto.mturk.question, boto.mturk.price, boto.mturk.qualification
 
-## I am surprised that boto doesn't escape URLs when creating the QuestionForm XML.
-from xml.sax.saxutils import escape
-
-
 
 def create_mturk( sandbox = True ):
     
@@ -107,7 +103,7 @@ def create_HITs_for_external_URLs( mturk, URLs, **kwargs ):
     HITs = []
     assert len( URLs ) == len( annotations )
     for URL, annotation in zip( URLs, annotations ):
-        questionform = boto.mturk.question.ExternalQuestion( escape( URL ), frame_height )
+        questionform = boto.mturk.question.ExternalQuestion( URL, frame_height )
         
         create_hit_result = mturk.create_hit(
             question = questionform,
