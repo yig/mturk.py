@@ -75,11 +75,35 @@ def create_HITs_for_external_URLs( mturk, URLs, **kwargs ):
           may be present, but not both.
     '''
     
+    kwargs = dict( kwargs )
+    
     frame_height = kwargs['frame_height']
     del kwargs['frame_height']
     
     amount = kwargs['amount']
     del kwargs['amount']
+    
+    qualifications = None
+    if 'qualifications' in kwargs:
+        qualifications_pretty = kwargs['qualifications']
+        del kwargs['qualifications']
+        if qualifications_pretty is not None:
+            
+            ## Get all supported qualification classes.
+            import inspect
+            name2class = dict([
+                ( name, cls )
+                for name, cls in inspect.getmembers( boto.mturk.qualification, inspect.isclass )
+                if issubclass( cls, boto.mturk.qualification.Requirement ) and cls is not boto.mturk.qualification.Requirement
+                ])
+            
+            
+            ## Iterate over the qualifications, and add them to a set.
+            qualifications = boto.mturk.qualification.Qualifications()
+            
+            for qual_pretty in qualifications_pretty:
+                print 'Qualification:', qual_pretty
+                qualifications.add( name2class[ qual_pretty[0] ]( *qual_pretty[1:] ) )
     
     ## 'annotation' and 'annotations' cannot both be in kwargs.
     assert not ( 'annotation' in kwargs and 'annotations' in kwargs )
@@ -108,6 +132,7 @@ def create_HITs_for_external_URLs( mturk, URLs, **kwargs ):
         create_hit_result = mturk.create_hit(
             question = questionform,
             reward = boto.mturk.price.Price( amount = amount, currency_code = 'USD' ),
+            qualifications = qualifications,
             ## The default for create_hit() is Minimal;
             ## also add 'HITDetail' for CreationTime,
             ## 'HITQuestion' for ExternalURL and FrameHeight,
@@ -450,8 +475,14 @@ def main():
         
         "frame_height": 900,
         
-        "amount": 0.0,
-        "max_assignments": 1,
+        "amount": 0.1,
+        "max_assignments": 10,
+        
+        "qualifications": [
+            [ "PercentAssignmentsApprovedRequirement", "GreaterThan", "95" ],
+            [ "NumberHitsApprovedRequirement", "GreaterThan", "100" ],
+            [ "LocaleRequirement", "EqualTo", "US" ]
+            ],
         
         "duration": 360,
         "lifetime": 604800,
@@ -461,6 +492,7 @@ def main():
 }'''
         
         print >> sys.stderr, 'Note: Commands run in the sandbox unless "really" is present.'
+        print >> sys.stderr, 'Note: The "qualifications" entry is optional.  The default is to have no qualifications.  Any qualification type supported by boto is supported.'
         
         sys.exit(-1)
     

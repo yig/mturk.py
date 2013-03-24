@@ -27,8 +27,14 @@ Example "debug.json":
         
         "frame_height": 900,
         
-        "amount": 0.0,
-        "max_assignments": 1,
+        "amount": 0.1,
+        "max_assignments": 10,
+        
+        "qualifications": [
+            [ "PercentAssignmentsApprovedRequirement", "GreaterThan", "95" ],
+            [ "NumberHitsApprovedRequirement", "GreaterThan", "100" ],
+            [ "LocaleRequirement", "EqualTo", "US" ]
+            ],
         
         "duration": 360,
         "lifetime": 604800,
@@ -37,3 +43,4 @@ Example "debug.json":
     "URLs": [ "http://example.com/page.html" ]
 }
 Note: Commands run in the sandbox unless "really" is present.
+Note: The "qualifications" entry is optional.  The default is to have no qualifications.  Any qualification type supported by boto is supported.
