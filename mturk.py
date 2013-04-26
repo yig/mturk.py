@@ -492,7 +492,7 @@ def main():
 }'''
         
         print >> sys.stderr, 'Note: Commands run in the sandbox unless "really" is present.'
-        print >> sys.stderr, 'Note: The "qualifications" entry can be omitted.  The default is to have no qualifications.  Any qualification type supported by boto is allowed.'
+        print >> sys.stderr, 'Note: The "qualifications" field is optional.  The default is to have no qualifications.  Any qualification type supported by boto is allowed.'
         
         sys.exit(-1)
     
