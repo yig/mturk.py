@@ -349,7 +349,7 @@ def HITs2CSV( HITs ):
         rows.append( row )
     
     out = StringIO.StringIO()
-    dw = csv.DictWriter( out, primary_fields )
+    dw = csv.DictWriter( out, primary_fields, lineterminator = '\n' )
     dw.writeheader()
     dw.writerows( rows )
     return out.getvalue()
@@ -396,7 +396,7 @@ def assignments2CSV( assignments ):
     all_fields = primary_fields + qid_fields
     
     out = StringIO.StringIO()
-    dw = csv.DictWriter( out, all_fields )
+    dw = csv.DictWriter( out, all_fields, lineterminator = '\n' )
     dw.writeheader()
     dw.writerows( rows )
     return out.getvalue()
@@ -517,7 +517,7 @@ def main():
         
         HITId = argv[0]
         
-        print HITIds2CSV( mturk, [ HITId ] )
+        print HITIds2CSV( mturk, [ HITId ] ),
     
     def retrieve( argv ):
         if len( argv ) != 1: usage()
@@ -525,7 +525,7 @@ def main():
         HITId = argv[0]
         
         assignments = get_all_assignments_for_HITId( mturk, HITId )
-        print assignments2CSV( assignments )
+        print assignments2CSV( assignments ),
     
     def expire( argv ):
         if len( argv ) != 1: usage()
