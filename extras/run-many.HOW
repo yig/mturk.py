@@ -1,0 +1,219 @@
+#!/bin/bash
+
+### A convenience wrapper around "mturk.py"
+### 
+### Author: Yotam Gingold <yotam@yotamgingold.com>
+### 
+### Any copyright is dedicated to the Public Domain.
+### http://creativecommons.org/publicdomain/zero/1.0/
+### 
+### 
+### Instructions for use
+### 
+### Create the (JSON-formatted) configuration file for mturk.py,
+### name it "mturk.json", and place it inside a directory.
+### The run this script with the path to that directory
+### as the first parameter and a command to execute as the second parameter.
+### Information about the HITs created by the "mturk.json" file will
+### be stored in files inside the directory.
+### This version of the script places the HITId in the filenames,
+### so it is suitable for running "mturk.json" files that
+### specify multiple external URLs.
+### If you only have one URL to run (in which case there will be only one HITId),
+### and you'd prefer not to have the HITId in the filenames, then
+### you can use the "run-one.HOW" version of this script.
+
+## The path to the "mturk.py" script.
+#MTURKPY=./mturk.py
+REQUESTER_ID=A15H0LB6D1DHDQ
+
+## From: http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+MTURKPY="${DIR}/../mturk.py"
+
+usage()
+{
+    echo 1>&2 "Usage:" "$0" '[really] "path/to/basedir/" submit | info | web | retrieve | remove | extend number-of-additional-assignments'
+    echo 1>&2 'Note: Commands run in the sandbox unless "really" is present.'
+    exit -1
+}
+## Check if really was passed as the first argument; if so, then we're not on the sandbox.
+if [ "$1" == "really" ]
+then
+	shift
+	MTURKPY=$(echo $MTURKPY really)
+	echo "Sandbox: NO"
+else
+	echo "Sandbox: YES"
+fi
+
+## Check for enough parameters.
+## UPDATE: Use -lt instead of -ne because "extend" takes three parameters.
+if [ $# -lt 2 ]
+then
+	usage
+	exit -1
+fi
+
+## The first argument is the base directory.
+BASEDIR="$1"
+shift
+
+## Make the directory
+mkdir -p "${BASEDIR}"
+
+## Get the HITID (once submitted)
+HITIDs=$(grep create_hit "${BASEDIR}/submit.txt" 2> /dev/null  | sed -E 's/.*: ([A-Z0-9]*)\]/\1/')
+
+submit()
+{
+## Get extra confirmation:
+## http://stackoverflow.com/questions/1885525/how-do-i-prompt-a-user-for-confirmation-in-bash-script
+read -p "Are you sure you want to *submit* this HIT? [y/Y] " -r
+if [[ $REPLY =~ ^[Yy] ]]
+then
+    
+    ## Submit
+    ${MTURKPY} submit "${BASEDIR}/mturk.json" | tee "${BASEDIR}/submit.txt"
+    
+fi
+}
+
+info()
+{
+## Info
+for HITID in ${HITIDs}
+do
+    ${MTURKPY} info "${HITID}" | tee "${BASEDIR}/info-${HITID}.txt"
+done
+}
+
+web()
+{
+## Check for Mechanical Turk jobs by my Requester ID:
+if echo "$MTURKPY" | grep -w 'really' > /dev/null
+then
+    open 'https://www.mturk.com/mturk/searchbar?selectedSearchType=hitgroups&requesterId='"${REQUESTER_ID}"
+else
+    open 'https://workersandbox.mturk.com/mturk/searchbar?selectedSearchType=hitgroups&requesterId='"${REQUESTER_ID}"
+fi
+}
+
+retrieve()
+{
+for HITID in ${HITIDs}
+do
+    KNOWN=""
+    if [ -e "${BASEDIR}/results-${HITID}.csv.meta" ]
+    then
+        #echo "=== Known assignments for ${HITID}:"
+        #cat "${BASEDIR}/results-${HITID}.csv.meta"
+        KNOWN=" (`tail -1 "${BASEDIR}/results-${HITID}.csv.meta" | cut -d ':' -f 2 | cut -d ' ' -f 2` previously known)"
+    fi
+    echo "=== Retrieving new assignments for ${HITID}${KNOWN}..."
+    
+    ## Retrieve
+    ${MTURKPY} retrieve "${HITID}" > "${BASEDIR}/results-${HITID}.meta_and_csv" ; \
+    cat "${BASEDIR}/results-${HITID}.meta_and_csv" | head -2 | tee "${BASEDIR}/results-${HITID}.csv.meta" ; \
+    cat "${BASEDIR}/results-${HITID}.meta_and_csv" | tail -n +3 > "${BASEDIR}/results-${HITID}.csv"
+done
+}
+
+remove()
+{
+## Get extra confirmation:
+## http://stackoverflow.com/questions/1885525/how-do-i-prompt-a-user-for-confirmation-in-bash-script
+read -p "Are you sure you want to *remove* this HIT? [y/Y] " -r
+if [[ $REPLY =~ ^[Yy] ]]
+then
+    
+    ## Remove
+    for HITID in ${HITIDs}
+    do
+        ${MTURKPY} remove "${HITID}"
+    done
+    
+fi
+}
+
+extend()
+{
+if [ $# -ne 1 ]
+then
+	usage
+	exit -1
+fi
+
+## Get extra confirmation:
+## http://stackoverflow.com/questions/1885525/how-do-i-prompt-a-user-for-confirmation-in-bash-script
+read -p "Are you sure you want to *extend* this HIT? [y/Y] " -r
+if [[ $REPLY =~ ^[Yy] ]]
+then
+
+    ## Extend with additional assignments
+    for HITID in ${HITIDs}
+    do
+        #if [ $# -ne 1 ]
+        #then
+        #    usage
+        #    exit -1
+        #fi
+        
+        ${MTURKPY} extend "${HITID}" "$1"
+    done
+
+fi
+}
+
+## If we're not submitting (or checking the web), $HITID better not be empty.
+if [ "$1" != "submit" ] && [ "$1" != "web" ] && [ -z "${HITIDs}" ]
+then
+    echo 1>&2 "You must submit first."
+    usage
+fi
+
+command="$1"
+## Shift to remove the command from the arguments,
+## so we pass sensible arguments to the subroutines.
+shift
+case $command in
+    submit)
+        if [ -e "${BASEDIR}/submit.txt" ]
+        then
+            echo 1>&2 "Refusing to submit;" "${BASEDIR}/submit.txt" "already exists."
+            usage
+        else
+            submit
+        fi
+        ;;
+    
+    info)
+        info
+        ;;
+    
+    web)
+        web
+        ;;
+    
+    retrieve)
+        retrieve
+        ;;
+    
+    remove)
+        remove
+        ;;
+    
+    extend)
+        extend "$@"
+        ;;
+    
+    *)
+        usage
+        ;;
+esac
