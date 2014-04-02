@@ -17,6 +17,13 @@ import csv
 csv.field_size_limit( 1310720 )
 
 def get_columns_from_csv_file_object( column_names, csv_file_object ):
+    '''
+    Given a sequence of column names 'column_names' and
+    a file-like object 'csv_file_object' as would be returned
+    from calling open() on a CSV file with a header row,
+    returns, for each row, the sequence of elements corresponding to the given column names.
+    '''
+    
     result = [
         [ ( line[ column_name ] if column_name in line else None ) for column_name in column_names ]
         for line in csv.DictReader( csv_file_object )
@@ -30,9 +37,22 @@ def get_columns_from_csv_file_object( column_names, csv_file_object ):
     return result
 
 def get_columns_from_csv_path( column_names, csv_path ):
+    '''
+    The same as get_columns_from_csv_file_object(), but takes a path to a CSV file
+    instead of an file-like object.
+    '''
     return get_columns_from_csv_file_object( column_names, open( csv_path, 'rU' ) )
 
 def get_lines_matching_column_values_from_csv_path( column_name2values, csv_path ):
+    '''
+    Given a dictionary 'column_name2values' mapping a set of column names to values and
+    a path to a CSV file that has a header row,
+    returns the list of lines in the CSV file whose columns in 'column_name2values' have
+    values equaling the corresponding values in 'column_name2values'.
+    The lines are returned in order and as dictionaries, as would be returned by
+    csv.DictReader. In effect, this function filters csv.DictReader.
+    '''
+    
     return [
         line for line in csv.DictReader( open( csv_path ) )
         if all([
