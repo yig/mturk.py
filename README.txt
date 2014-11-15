@@ -1,12 +1,16 @@
-A convenient command-line tool for using Amazon Mechanical Turk.
-Relies on boto: https://github.com/boto/boto
+## About
+
+A convenient command-line tool for using Amazon Mechanical Turk.  
+Relies on boto: <https://github.com/boto/boto>
 
 Author: Yotam Gingold <yotam@yotamgingold.com>
 
 Any copyright is dedicated to the Public Domain.
-http://creativecommons.org/publicdomain/zero/1.0/
+<http://creativecommons.org/publicdomain/zero/1.0/>
 
+## Usage
 
+```
 $ ./mturk.py 
 Usage: ./mturk.py [really] submit path/to/job.json
 Usage: ./mturk.py [really] info HITId
@@ -44,3 +48,10 @@ Example "debug.json":
 }
 Note: Commands run in the sandbox unless "really" is present.
 Note: The "qualifications" entry is optional.  The default is to have no qualifications.  Any qualification type supported by boto is supported.
+```
+
+## Installation
+
+`git clone --recursive https://github.com/yig/mturk.py.git`
+
+Put your AWS credentials somewhere `boto` can find them (I use a `.boto` file): <http://boto.readthedocs.org/en/latest/boto_config_tut.html>
