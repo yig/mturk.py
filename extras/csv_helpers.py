@@ -12,6 +12,8 @@ Any copyright is dedicated to the Public Domain.
 http://creativecommons.org/publicdomain/zero/1.0/
 '''
 
+from __future__ import print_function, division
+
 import csv
 ## Up the field size limit, because sometimes I store base64-encoded PNG's in the columns.
 csv.field_size_limit( 1310720 )
@@ -43,6 +45,9 @@ def get_columns_from_csv_path( column_names, csv_path ):
     '''
     return get_columns_from_csv_file_object( column_names, open( csv_path, 'rU' ) )
 
+def get_column_from_csv_path( column_name, csv_path ):
+    return [ column[0] for column in get_columns_from_csv_path( [column_name], csv_path ) ]
+
 def get_lines_matching_column_values_from_csv_path( column_name2values, csv_path ):
     '''
     Given a dictionary 'column_name2values' mapping a set of column names to values and
@@ -65,7 +70,7 @@ def main():
     import os, sys
     
     def usage():
-        print >> sys.stderr, 'Usage:', sys.argv[0], 'path/to/file.csv column_name [column_name2 ...]'
+        print( 'Usage:', sys.argv[0], 'path/to/file.csv column_name [column_name2 ...]', file = sys.stderr )
         sys.exit(-1)
     
     try:

@@ -99,9 +99,11 @@ web()
 ## Check for Mechanical Turk jobs by my Requester ID:
 if echo "$MTURKPY" | grep -w 'really' > /dev/null
 then
-    open 'https://www.mturk.com/mturk/searchbar?selectedSearchType=hitgroups&requesterId='"${REQUESTER_ID}"
+    # open 'https://www.mturk.com/mturk/searchbar?selectedSearchType=hitgroups&requesterId='"${REQUESTER_ID}"
+    open 'https://www.mturk.com/requesters/'"${REQUESTER_ID}"'/projects'
 else
-    open 'https://workersandbox.mturk.com/mturk/searchbar?selectedSearchType=hitgroups&requesterId='"${REQUESTER_ID}"
+    # open 'https://workersandbox.mturk.com/mturk/searchbar?selectedSearchType=hitgroups&requesterId='"${REQUESTER_ID}"
+    open 'https://workersandbox.mturk.com/requesters/'"${REQUESTER_ID}"'/projects'
 fi
 }
 
