@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
 A convenience script to extract a single named column from a CSV file.
@@ -7,12 +7,11 @@ Usage: ./csv_helpers.py path/to/file.csv column_name
 
 
 Author: Yotam Gingold <yotam@yotamgingold.com>
+Home: https://github.com/yig/mturk.py
 
 Any copyright is dedicated to the Public Domain.
 http://creativecommons.org/publicdomain/zero/1.0/
 '''
-
-from __future__ import print_function, division
 
 import csv
 ## Up the field size limit, because sometimes I store base64-encoded PNG's in the columns.
@@ -62,7 +61,7 @@ def get_lines_matching_column_values_from_csv_path( column_name2values, csv_path
         line for line in csv.DictReader( open( csv_path ) )
         if all([
             line[name] == value
-            for name, value in column_name2values.iteritems()
+            for name, value in column_name2values.items()
             ])
         ]
 

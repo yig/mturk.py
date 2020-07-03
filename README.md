@@ -1,7 +1,7 @@
 ## About
 
 A convenient command-line tool for using Amazon Mechanical Turk.  
-Relies on boto: <https://github.com/boto/boto>
+Relies on boto: <https://github.com/boto/boto3>
 
 Author: Yotam Gingold <yotam@yotamgingold.com>
 
@@ -54,4 +54,4 @@ Note: The "qualifications" entry is optional.  The default is to have no qualifi
 
 `git clone --recursive https://github.com/yig/mturk.py.git`
 
-Put your AWS credentials somewhere `boto` can find them (I use a `.boto` file): <http://boto.readthedocs.org/en/latest/boto_config_tut.html>
+Put your AWS credentials somewhere `boto` can find them (I use a `.aws/credentials` file): <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration>
